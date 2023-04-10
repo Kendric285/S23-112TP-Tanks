@@ -41,30 +41,32 @@ def getLineCoorX(x1,y1,mouseX,mouseY):
     if mouseY > y1:
         adjacent = mouseY - y1
         theta = math.acos(adjacent/hypotenuse)
-        xAdd = 100 * math.sin(theta)
+        xAdd = 30 * math.sin(theta)
 
         return xAdd if mouseX > x1 else (-xAdd)
 
     elif y1 > mouseY:
         opposite = y1 - mouseY
         theta = math.asin(opposite/hypotenuse)
-        xAdd = 100 * math.cos(theta)
+        xAdd = 30 * math.cos(theta)
 
         return xAdd if mouseX > x1 else (-xAdd)
-
+    return 0
 def getLineCoorY(x1,y1,mouseX,mouseY):
     hypotenuse = distance(x1,y1,mouseX,mouseY)
     if mouseY > y1:
         adjacent = mouseY - y1
         theta = math.acos(adjacent/hypotenuse)
-        yAdd = 100 * math.cos(theta)
+        yAdd = 30 * math.cos(theta)
 
         return yAdd
 
     elif y1 > mouseY:
         opposite = y1 - mouseY
         theta = math.asin(opposite/hypotenuse)
-        yAdd = 100 * math.sin(theta)
+        yAdd = 30 * math.sin(theta)
 
         return (-yAdd)
+    return -30 if mouseX < x1 else 30
+   
     

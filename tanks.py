@@ -1,7 +1,6 @@
 
 from cmu_graphics import *
 import math, copy,decimal
-
 from functions import *
 from classes import *
 
@@ -22,12 +21,12 @@ def onKeyHold(app,keys):
     angle = app.player.body_direction
     radians = math.radians(angle)
     if 'w' in keys:
-        app.player.y -= (7 * math.cos(radians))
-        app.player.x += (7 * math.sin(radians))
+        app.player.y -= (10 * math.cos(radians))
+        app.player.x += (10 * math.sin(radians))
         print(app.player.y)
     elif 's' in keys:
-        app.player.y += (7 * math.cos(radians))
-        app.player.x -= (7 * math.sin(radians))
+        app.player.y += (10 * math.cos(radians))
+        app.player.x -= (10 * math.sin(radians))
     if 'd' in keys:
         app.player.body_direction += 5
     elif 'a' in keys:
