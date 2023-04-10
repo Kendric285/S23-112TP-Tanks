@@ -1,8 +1,9 @@
 
 from cmu_graphics import *
 import math, copy,decimal
-from classes import *
+
 from functions import *
+from classes import *
 
 def onAppStart(app): 
     app.playerX = app.width/2
