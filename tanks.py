@@ -7,40 +7,35 @@ from functions import *
 
 
 def onAppStart(app): 
-    app.cx = app.width/2
-    app.cy = app.height/2
-    app.dx = 2
-    app.dy = 1
-    app.rectWidth = 100
-    app.rectHeight = 50
     app.playerX = app.width/2
     app.playerY = app.height/2
-    app.player = Player(3,10,app.width/2,app.height/2,0,0)
+    app.player = Player(3,10,app.width/2,app.height/2,0,0,0,0)
     app.game = TankGame(app.player,[])
 
-def onMousePress(app, mouseX, mouseY):
-    app.cx = mouseX
-    app.cy = mouseY
+def onMouseMove(app, mouseX, mouseY):
+    app.player.mouseX = mouseX
+    app.player.mouseY = mouseY
 
-def onStep(app):
-    left = app.cx - app.rectWidth/2
-    right = app.cx + app.rectWidth/2
-    top = app.cy - app.rectHeight/2
-    bottom = app.cy + app.rectHeight/2
-    if left < 0: app.dx = abs(app.dx)
-    elif right > app.width: app.dx = -abs(app.dx)
+def onKeyPress(app,key):
+    return True
 
-    if top < 0: app.dy = abs(app.dy)
-    elif bottom > app.height: app.dy = -abs(app.dy)
-
-    app.cx += app.dx
-    app.cy += app.dy
+def onKeyHold(app,keys):
+    angle = app.player.body_direction
+    radians = math.radians(angle)
+    if 'w' in keys:
+        app.player.y -= (7 * math.cos(radians))
+        app.player.x += (7 * math.sin(radians))
+        print(app.player.y)
+    elif 's' in keys:
+        app.player.y += (7 * math.cos(radians))
+        app.player.x -= (7 * math.sin(radians))
+    if 'd' in keys:
+        app.player.body_direction += 5
+    elif 'a' in keys:
+        app.player.body_direction -= 5
 
 def redrawAll(app):
-    app.game.drawPlayer()
-    
-    
-
+    app.player.drawPlayer()
 
 def main():
     runApp()
