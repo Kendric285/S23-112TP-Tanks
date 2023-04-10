@@ -4,8 +4,6 @@ import math, copy,decimal
 from classes import *
 from functions import *
 
-
-
 def onAppStart(app): 
     app.playerX = app.width/2
     app.playerY = app.height/2

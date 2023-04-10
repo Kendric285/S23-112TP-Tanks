@@ -20,15 +20,17 @@ class Player:
         self.mouseX = mouseX
         self.mouseY = mouseY
     def drawPlayer(self):
-        frontX1 = self.x - 25
-        frontY1 = self.y - 25
-        frontX2 = self.x + 25
-        frontY2 = self.y - 25
+        theta = math.radians(self.body_direction - 45)
+
+        frontX1 = (self.x + (50/2) * math.sin(theta))
+        frontY1 = (self.y - (50/2) * math.cos(theta))
+        frontX2 = (self.x + (50/2) * math.cos(theta))
+        frontY2 = (self.y + (50/2) * math.sin(theta))
         #wheels, top square, 
-        drawRect(self.x,self.y,65,45,rotateAngle = self.body_direction,fill = "grey", align = "center")
+        r = drawRect(self.x,self.y,65,45,rotateAngle = self.body_direction,fill = "grey", align = "center")
         drawRect(self.x,self.y,50,50,rotateAngle = self.body_direction,fill = "black", align = "center")
         drawLine(frontX1,frontY1,frontX2,frontY2,fill = 'red', lineWidth = 5)
-        drawLine(self.x,self.y,(self.x + getLineCoorX(self.x,self.y,self.mouseX,self.mouseY)),(self.y + getLineCoorY(self.x,self.y,self.mouseX,self.mouseY)), fill = 'orange', lineWidth = 10)
+        drawLine(self.x,self.y,self.mouseX, self.mouseY,fill = 'green', lineWidth = 5, fill = 'orange', lineWidth = 10)
         drawCircle(self.x,self.y,10, fill = 'grey',align= "center")
         
 def getLineCoorX(x1,y1,mouseX,mouseY):
