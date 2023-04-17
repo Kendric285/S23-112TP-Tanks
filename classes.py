@@ -1,9 +1,11 @@
-
 from cmu_graphics import *
 import math, copy, decimal
 from functions import *
 #4 hours on 4/10
-#2 hours on 4/11
+#3 hours on 4/11
+#6 hours on 4/12
+#5 hours on 4/16
+#3 hours on 4/17
 class TankGame:
     def __init__(self,player,enemies, balls):
         self.player = player
@@ -45,9 +47,7 @@ class Player:
         frontX2 = (self.x + (50/2) * math.cos(theta))
         frontY2 = (self.y + (50/2) * math.sin(theta))
 
-
         self.tankAddX, self.tankAddY = lcoor(self.x, self.y, self.mouseX, self.mouseY)
-
         # tankX = getLineCoorX(self.x,self.y,self.mouseX,self.mouseY)
         # tankY = getLineCoorY(self.x,self.y,self.mouseX,self.mouseY)
         #wheels, top square, 
@@ -66,8 +66,14 @@ class Enemy:
         self.x = x
         self.y = y
         self.body_direction = body_direction
-    def move(self,x,y):
-        return 'oof'
+        self.tankAddX, self.tankAddY = (0,0)
+    def rotate(self,final_angle):
+        self.body_direction = final_angle
+    def move(self):
+        angle = self.body_direction
+        radians = math.radians(angle)
+        self.x += (5 * math.sin(radians))
+        self.y -= (5 * math.cos(radians))
     def drawEnemy(self,playerX,playerY):
         theta = math.radians(self.body_direction - 45)
         self.bullet_direction = theta
@@ -75,7 +81,6 @@ class Enemy:
         frontY1 = (self.y - (50/2) * math.cos(theta))
         frontX2 = (self.x + (50/2) * math.cos(theta))
         frontY2 = (self.y + (50/2) * math.sin(theta))
-
 
         self.tankAddX, self.tankAddY = lcoor(self.x, self.y, playerX, playerY)
 
@@ -92,12 +97,8 @@ class Enemy:
         tankY = self.y + self.tankAddY
         return (tankX,tankY)
     
-
-
 def lcoor(x1,y1,mouseX,mouseY):
     r = distance(x1,y1,mouseX,mouseY)
     dx = mouseX - x1
     dy = mouseY - y1
     return (((dx / r) * 30), ((dy / r) * 30))
-
-
