@@ -6,6 +6,17 @@ from functions import *
 #6 hours on 4/12
 #5 hours on 4/16
 #3 hours on 4/17
+
+class GameBoard:
+    def __init__(self,board):
+        self.board = board
+    def drawBoard(self):
+        cols = len(self.board[0])
+        rows = len(self.board)
+        for row in range(rows):
+            for col in range(cols):
+                if self.board[row][col] == 1:
+                    drawRect((90 + (col * 20)),(100 + (row * 20)), 20,20,fill = 'black', align = 'center')
 class TankGame:
     def __init__(self,player,enemies, balls):
         self.player = player
@@ -81,7 +92,7 @@ class Enemy:
         frontY1 = (self.y - (50/2) * math.cos(theta))
         frontX2 = (self.x + (50/2) * math.cos(theta))
         frontY2 = (self.y + (50/2) * math.sin(theta))
-
+        self.body_direction = self.bullet_direction
         self.tankAddX, self.tankAddY = lcoor(self.x, self.y, playerX, playerY)
 
         # tankX = getLineCoorX(self.x,self.y,self.mouseX,self.mouseY)
