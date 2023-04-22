@@ -16,7 +16,9 @@ class GameBoard:
         for row in range(rows):
             for col in range(cols):
                 if self.board[row][col] == 1:
-                    drawRect((90 + (col * 20)),(100 + (row * 20)), 20,20,fill = 'black', align = 'center')
+                    drawRect((150 + (col * 38)),(120 + (row * 38)), 38,38,fill = 'green', align = 'center', border = 'green')
+                else:
+                    drawRect((150 + (col * 38)),(120 + (row * 38)), 38,38,fill = 'black', align = 'center')
 class TankGame:
     def __init__(self,player,enemies, balls):
         self.player = player
@@ -38,7 +40,6 @@ class Ball:
     def __repr__(self):
         return f'Ball x:{self.x}, y:{self.y}, angle:{self.angle}'
     
-
 class Player:
     def __init__(self,lives,bullets,x,y,bullet_direction,body_direction,mouseX, mouseY):
         self.lives = lives
@@ -71,6 +72,7 @@ class Player:
         tankX = self.x + self.tankAddX
         tankY = self.y + self.tankAddY
         return (tankX,tankY)
+    
     
 class Enemy:
     def __init__(self,x,y,bullet_direction,body_direction):
@@ -113,3 +115,4 @@ def lcoor(x1,y1,mouseX,mouseY):
     dx = mouseX - x1
     dy = mouseY - y1
     return (((dx / r) * 30), ((dy / r) * 30))
+

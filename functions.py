@@ -18,3 +18,22 @@ def distance(x1, y1, x2, y2):
     y_two = y*y
     d = math.sqrt(x_two + y_two)
     return d
+
+
+#rows cols within the border
+def translator(row,col):
+    x = 188 + (38 * row)
+    y = 158 + (38 * col)
+    return (x,y)
+
+def wholeBoardTranslator(row,col):
+    x = 150 + (38 * row)
+    y = 120 + (38 * col)
+    return (x,y)
+
+def XYtoRowCol(x,y):
+    row = (x - 150) // 38
+    col = (y - 120) // 38
+    return (int(row),int(col))
+
+#def destination(board, playerx,playery,)
