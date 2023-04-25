@@ -34,8 +34,8 @@ class Ball:
         self.plusY = plusY
     def updateXY(self):
 
-        self.x += 4
-        self.y += 4
+        self.x += 8
+        self.y += 8
 
     def __repr__(self):
         return f'Ball x:{self.x}, y:{self.y}, angle:{self.angle}'
@@ -63,8 +63,8 @@ class Player:
         # tankX = getLineCoorX(self.x,self.y,self.mouseX,self.mouseY)
         # tankY = getLineCoorY(self.x,self.y,self.mouseX,self.mouseY)
         #wheels, top square, 
-        drawRect(self.x,self.y,65,45,rotateAngle = self.body_direction,fill = "grey", align = "center")
-        self.base = drawRect(self.x,self.y,50,50,rotateAngle = self.body_direction,fill = "black", align = "center")
+        drawRect(self.x,self.y,55,35,rotateAngle = self.body_direction,fill = "grey", align = "center")
+        self.base = drawRect(self.x,self.y,40,40,rotateAngle = self.body_direction,fill = "black", align = "center")
         drawLine(frontX1,frontY1,frontX2,frontY2,fill = 'red', lineWidth = 5)
         drawLine(self.x,self.y,self.x + self.tankAddX, self.y + self.tankAddY, fill = 'orange', lineWidth = 10)
         drawCircle(self.x,self.y,10, fill = 'grey',align= "center")
@@ -75,18 +75,42 @@ class Player:
     
     
 class Enemy:
-    def __init__(self,x,y,bullet_direction,body_direction):
+    def __init__(self,x,y,bullet_direction,body_direction,movement):
         self.x = x
         self.y = y
         self.body_direction = body_direction
         self.tankAddX, self.tankAddY = (0,0)
+        self.movement = movement
+        if self.movement == 'updown':
+            self.moving = 'down'
+        if self.movement == 'leftright':
+            self.moving = 'left'
     def rotate(self,final_angle):
         self.body_direction = final_angle
     def move(self):
-        angle = self.body_direction
-        radians = math.radians(angle)
-        self.x += (5 * math.sin(radians))
-        self.y -= (5 * math.cos(radians))
+        if self.movement == 'updown':
+            if self.moving == 'down' and self.y < 652:
+                self.y += 9.5
+                if self.y >= 652:
+                    self.moving = 'up'
+            elif self.moving == 'up' and self.y > 158:
+                self.y -= 9.5
+                if self.y <= 158:
+                    self.moving = 'down'
+        elif self.movement == 'leftright':
+            if self.moving == 'left' and self.x > 188:
+                self.x -= 9.5
+                if self.x <= 188:
+                    self.moving = 'right'
+            elif self.moving == 'right' and self.x < 682:
+                self.x += 9.5
+                if self.x >= 682:
+                    self.moving = 'left'
+
+        # angle = self.body_direction
+        # radians = math.radians(angle)
+        # self.x += (5 * math.sin(radians))
+        # self.y -= (5 * math.cos(radians))
     def drawEnemy(self,playerX,playerY):
         theta = math.radians(self.body_direction - 45)
         self.bullet_direction = theta

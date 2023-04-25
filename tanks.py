@@ -5,7 +5,10 @@ import pprint
 from random import randint
 from functions import *
 from classes import *
-
+#3 behaviors for enemies for now
+# one stationary
+# two back and forth
+# three up and down
 def reset(app):
     app.pause = False
     app.gameState = 'game'
@@ -17,11 +20,18 @@ def reset(app):
     app.game = TankGame(app.player,[],[])
     app.balls = []
     app.step = 0
+    app.mousePressed = False
+    app.pressTimer = 0
     randx = randint(169,701)
     randy = randint(139,671)
-    app.enemies = [Enemy((randx),(randy), 0,0)]
+    app.holder = 14
+    app.enx,app.eny = wholeBoardTranslator(app.holder,1)
+    app.movementTypes = ['updown','leftright','none']
+    randMoveType = randint(0,2)
+    app.enemies = [Enemy((app.enx),(app.eny), 0,0,app.movementTypes[2])]
     app.drag = False
     app.pause = True
+    app.shotBCTimer = False
     app.bullets = 10
     app.lives = 3
     app.wave = 1
@@ -42,6 +52,7 @@ def importantData(app):
     x,y = XYtoRowCol(app.player.x,app.player.y)
     app.board[x][y] == 5
     drawLabel(f'X: {x}, Y: {y}', 50,150, size = 15)
+    drawLabel(f'timer: {app.pressTimer}', 50,175, size = 15)
 
 def onAppStart(app): 
     app.width = 800
@@ -56,31 +67,65 @@ def onMouseMove(app, mouseX, mouseY):
 def onMousePress(app, mouseX, mouseY):
     if app.gameState == 'home':
         reset(app)
+    if app.gameState == 'game':
+        app.mousePressed = True
+        app.shotBCTimer = False
+
 
 def onMouseRelease(app, mouseX, mouseY):
     if app.gameState == 'game':
         ballX,ballY = app.player.endOfBarrel()
-        if app.bullets != 0:
-            app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,(1/2)*(app.player.tankAddX), (1/2) * app.player.tankAddY))
+        if app.bullets != 0 and app.shotBCTimer == False:
+            app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,((app.pressTimer + 1) / 3)*(app.player.tankAddX), ((app.pressTimer + 1) / 3) * app.player.tankAddY))
             app.bullets -= 1
             app.drag = False
+        app.mousePressed = False
+        app.pressTimer = 0
+    if app.gameState == 'store':
+        if isClicked(app.width/2,300,mouseX,mouseY,150,50) and app.money >= 3:
+            app.money -= 3
+            app.bullets += 5
+            
+        elif isClicked(app.width/2,375,mouseX,mouseY,150,50) and app.money >= 5:
+            app.money -= 5
+            app.lives += 1
+            
+    #app.lives = 3
     
 def onStep(app):
     if app.gameState == 'game' and app.pause:
         app.step += 1
         if app.enemies == []:
             app.wave += 1
-            for i in range(0,app.wave):
-                randx = randint(169,701)
-                randy = randint(139,671)
-                app.enemies.append(Enemy((randx),(randy), 0,0))
+            app.holder -= 1
+            for i in range(0,app.wave//2):
+
+                xt = randint(0,1)
+                x = 14 if xt == 0 else 1
+                y = randint(1,14)
+                app.enx,app.eny = wholeBoardTranslator(x,y)
+                if y != 1 or y != 14:
+                    randMoveType = 0
+                else:
+                    randMoveType = randint(0,2)
+                app.enemies.append(Enemy((app.enx),(app.eny), 0,0,app.movementTypes[randMoveType]))
         if app.balls != []:
             isTouching(app,app.balls)
             checkBallWallCollision(app, app.balls)
             updateBallPosition(app, app.balls)
             hitEnemy(app,app.balls,app.enemies)
+            if app.pressTimer == 5:
+                ballX,ballY = app.player.endOfBarrel()
+                app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,((app.pressTimer + 1) / 3)*(app.player.tankAddX), ((app.pressTimer + 1) / 3) * app.player.tankAddY))
+                app.bullets -= 1
+                app.mousePressed = False
+                app.pressTimer = 0
+                app.shotBCTimer = True
         if app.step % 50 == 0:
             enemyShoot(app,app.enemies)
+        if app.mousePressed == True and app.balls != []:
+            app.pressTimer += 1
+
 
 def updateBallPosition(app,balls):
     if app.gameState == 'game':
@@ -105,6 +150,7 @@ def checkBallWallCollision(app,balls):
                 else:
                     ball.plusY = ball.plusY * (-1)
             hitBarriers(app,ball)
+            
                
     
 def store(app):
@@ -113,8 +159,7 @@ def store(app):
     drawLabel('Buy ammo', app.width/2, 300, size = 16)
     drawRect(app.width/2, 375, 150,50,align= 'center', fill = 'blue')
     drawLabel('Buy Lives', app.width/2, 375, size = 16)
-    drawRect(app.width/2, 450, 150,50,align= 'center', fill = 'yellow')
-    drawLabel('Buy Speed', app.width/2, 450, size = 16)
+    
 
     importantData(app)
 
@@ -178,7 +223,6 @@ def enemyShoot(app,enemies):
         ballX,ballY = enemy.endOfBarrel()
         app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,enemy.tankAddX,enemy.tankAddY))
 
-
 def drawBalls(app,balls):
     for ball in balls:
         circle = drawCircle(ball.x, ball.y, 5, fill = "red")
@@ -228,7 +272,8 @@ def hitEnemy(app,balls,enemies):
         for enemy in enemies:
             if distance(ball.x, ball.y, enemy.x, enemy.y) <= (21 * math.sqrt(2)):
                 enemies.remove(enemy)
-                balls.remove(ball)
+                if ball in balls:
+                    balls.remove(ball)
                 app.money += 1
 
 def makeBarriers(app,list):
@@ -242,13 +287,22 @@ def hitBarriers(app, ball):
             ball.contacts += 1
             dx = abs(ball.x - barrierx)
             dy = abs(ball.y - barriery)
-            if dx > dy:
-                ball.plusX = ball.plusX * (-1)
+            if ball.contacts > 2:
+                if ball in app.balls:
+                    app.balls.remove(ball)
             else:
-                ball.plusY = ball.plusY * (-1)
+                if dx > dy:
+                    ball.plusX = ball.plusX * (-1)
+                else:
+                    ball.plusY = ball.plusY * (-1)
 
 def main():
     runApp()
 
 if __name__ == '__main__':
     main()
+
+
+#on mouse press and on mouse release have a timer that increases speed good check
+#move back and forth or up and donw checked off, also up down left right is also cool
+#make some end game screens andn some poinrt system to show the user when they die
