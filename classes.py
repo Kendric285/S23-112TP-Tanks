@@ -20,13 +20,14 @@ class TankGame:
         self.enemies = enemies
 
 class Ball:
-    def __init__(self,x,y,contacts,angle,plusX,plusY):
+    def __init__(self,x,y,contacts,angle,plusX,plusY,type):
         self.x = x
         self.y = y
         self.contacts = contacts
         self.angle = angle
         self.plusX = plusX
         self.plusY = plusY
+        self.type = type
     def updateXY(self):
 
         self.x += 8

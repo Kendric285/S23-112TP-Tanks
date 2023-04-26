@@ -1,0 +1,11 @@
+In this final update of my project I have added 3 more things to the project
+
+1. Added enemy movement: After the first wave the each enemy's movement is randomly chose to be stationary, 
+move up and down, or left to right and right.
+
+2. The use now can hold down on the trackpad and it will increase the bullet speed depending on how long 
+the user holds down on the trackpad. But after 5 steps the user's tank will automatically shoot at maximum speed.
+
+3. Finally on the start page it shows all the controls, and when the user dies there is an end game screen that
+shows the user how many kills they got and how many waves they survived. Also on this end game page they can
+click again to start the game over again.  

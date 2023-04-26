@@ -73,7 +73,7 @@ def onMouseRelease(app, mouseX, mouseY):
     if app.gameState == 'game':
         ballX,ballY = app.player.endOfBarrel()
         if app.bullets != 0 and app.shotBCTimer == False:
-            app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,((app.pressTimer + 1) / 3)*(app.player.tankAddX), ((app.pressTimer + 1) / 3) * app.player.tankAddY))
+            app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,((app.pressTimer + 1) / 3)*(app.player.tankAddX), ((app.pressTimer + 1) / 3) * app.player.tankAddY,'player'))
             app.bullets -= 1
             app.drag = False
         app.mousePressed = False
@@ -101,11 +101,11 @@ def onStep(app):
                 y = randint(1,14)
 
                 if (y == 1 or y == 2 or y == 13 or y == 14):
-                    r = randint(0,1)
-                    randMoveType = 1 if r == 1 else 2
+                    r = randint(0,app.wave + 2)
+                    randMoveType = 1 if r != 1 else 2
                 elif (x == 1 or x == 2 or x == 13 or x == 14):
-                    r = randint(0,1)
-                    randMoveType = 0 if r == 1 else 2
+                    r = randint(0,app.wave + 2)
+                    randMoveType = 0 if r != 1 else 2
                 else:
                     randMoveType = 0
                 app.enx,app.eny = wholeBoardTranslator(x,y)
@@ -117,14 +117,14 @@ def onStep(app):
             hitEnemy(app,app.balls,app.enemies)
             if app.pressTimer == 5 and app.bullets > 0:
                 ballX,ballY = app.player.endOfBarrel()
-                app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,((app.pressTimer + 1) / 3)*(app.player.tankAddX), ((app.pressTimer + 1) / 3) * app.player.tankAddY))
+                app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,((app.pressTimer + 1) / 3)*(app.player.tankAddX), ((app.pressTimer + 1) / 3) * app.player.tankAddY, 'player'))
                 app.bullets -= 1
                 app.mousePressed = False
                 app.pressTimer = 0
                 app.shotBCTimer = True
         if app.step % 50 == 0:
             enemyShoot(app,app.enemies)
-        if app.mousePressed == True and app.balls != []:
+        if app.mousePressed == True and app.bullets != 0:
             app.pressTimer += 1
 
 def updateBallPosition(app,balls):
@@ -166,16 +166,17 @@ def onKeyPress(app,key):
     randy = randint(200,app.height)
 
     if app.gameState == 'game':
-        if key == 'r':
-            app.enemies.append(Enemy((randx),(randy), 0,0))
         if key == 'c':
             app.enemies = []
         if key == 'l':
             reset(app)
         if key == 'q' :
             app.gameState = 'store'
-        if key == 'p':
-            app.pause = not app.pause
+        if key == 'r':
+            app.width = 800
+            app.height = 800
+            app.gameState = 'home'
+
     elif app.gameState == 'store': 
         if key == 'q':
             app.gameState = 'game'
@@ -208,7 +209,7 @@ def onKeyHold(app,keys):
 def enemyShoot(app,enemies):
     for enemy in enemies:
         ballX,ballY = enemy.endOfBarrel()
-        app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,enemy.tankAddX,enemy.tankAddY))
+        app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,enemy.tankAddX,enemy.tankAddY,'enemy'))
 
 def drawBalls(app,balls):
     for ball in balls:
@@ -255,7 +256,7 @@ def redrawAll(app):
 
 def isTouching(app,balls):
     for ball in balls:
-        if distance(ball.x, ball.y, app.player.x, app.player.y) <= (21 * math.sqrt(2)):
+        if distance(ball.x, ball.y, app.player.x, app.player.y) <= (21 * math.sqrt(2)) and ball.type == 'enemy':
             app.balls = []
             app.player.x, app.player.y = translator(0.5,12.5)
             app.lives -= 1
@@ -265,7 +266,7 @@ def isTouching(app,balls):
 def hitEnemy(app,balls,enemies):
     for ball in balls:
         for enemy in enemies:
-            if distance(ball.x, ball.y, enemy.x, enemy.y) <= (21 * math.sqrt(2)):
+            if distance(ball.x, ball.y, enemy.x, enemy.y) <= (21 * math.sqrt(2)) and ball.type == 'player':
                 enemies.remove(enemy)
                 if ball in balls:
                     balls.remove(ball)

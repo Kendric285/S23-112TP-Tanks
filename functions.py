@@ -15,17 +15,19 @@ def translator(row,col):
     y = 158 + (38 * col)
     return (x,y)
 
-#just the whole board
+#rows cols just the whole board
 def wholeBoardTranslator(row,col):
     x = 150 + (38 * row)
     y = 120 + (38 * col)
     return (x,y)
 
+#xy coor to row and col 
 def XYtoRowCol(x,y):
     row = (x - 150) // 38
     col = (y - 120) // 38
     return (int(row),int(col))
 
+#if square is clicked
 def isClicked(centerx,centery,mousex,mousey,height,width):
     xmin = centerx - (width / 2)
     xmax = centerx + (width / 2)
