@@ -5,12 +5,11 @@ import pprint
 from random import randint
 from functions import *
 from classes import *
-#3 behaviors for enemies for now
-# one stationary
-# two back and forth
-# three up and down
+
 def reset(app):
+    app.kills = 0
     app.pause = False
+    app.stepsPerSecond = 100
     app.gameState = 'game'
     app.gameOver = False
     app.playerX = app.width/2
@@ -41,18 +40,17 @@ def reset(app):
                     (3,7),(3,8),(3,9),(3,10),(3,11),(3,12),(4,12),(5,12),(6,12),(7,12),(8,12)]
     app.board = [[1 if row == 0 or col == 0 or row == 15 or col == 15 else 0 for col in range(16)] for row in range(16)]
     makeBarriers(app,app.barriers)
-    pprint.pprint(app.board)
     app.gameBoard = GameBoard(app.board)
 
 def importantData(app):
-    drawLabel(f'Lives: {app.lives}', 50,50,size = 15)
-    drawLabel(f'Bullets: {app.bullets}', 50,75, size = 15)
-    drawLabel(f'Wave: {app.wave}', 50,100, size = 15)
-    drawLabel(f'Money: ${app.money}', 50,125, size = 15)
+    drawRect(70,100,110,130, fill = "white", border = "black", align = "center", borderWidth = 3)
+    drawLabel(f'Lives: {app.lives}', 70,50,size = 15)
+    drawLabel(f'Bullets: {app.bullets}', 70,75, size = 15)
+    drawLabel(f'Wave: {app.wave}', 70,100, size = 15)
+    drawLabel(f'Money: ${app.money}', 70,125, size = 15)
+    drawLabel(f'B Speed: {app.pressTimer}', 70,150, size = 15)
     x,y = XYtoRowCol(app.player.x,app.player.y)
     app.board[x][y] == 5
-    drawLabel(f'X: {x}, Y: {y}', 50,150, size = 15)
-    drawLabel(f'timer: {app.pressTimer}', 50,175, size = 15)
 
 def onAppStart(app): 
     app.width = 800
@@ -65,12 +63,11 @@ def onMouseMove(app, mouseX, mouseY):
         app.player.mouseY = mouseY
 
 def onMousePress(app, mouseX, mouseY):
-    if app.gameState == 'home':
+    if app.gameState == 'home' or app.gameState == 'over':
         reset(app)
     if app.gameState == 'game':
         app.mousePressed = True
         app.shotBCTimer = False
-
 
 def onMouseRelease(app, mouseX, mouseY):
     if app.gameState == 'game':
@@ -89,9 +86,7 @@ def onMouseRelease(app, mouseX, mouseY):
         elif isClicked(app.width/2,375,mouseX,mouseY,150,50) and app.money >= 5:
             app.money -= 5
             app.lives += 1
-            
-    #app.lives = 3
-    
+                
 def onStep(app):
     if app.gameState == 'game' and app.pause:
         app.step += 1
@@ -99,22 +94,28 @@ def onStep(app):
             app.wave += 1
             app.holder -= 1
             for i in range(0,app.wave//2):
-
-                xt = randint(0,1)
-                x = 14 if xt == 0 else 1
+                xpos = [1,2,13,14]
+                xran = randint(0,3)
+                x = xpos[xran]
+                
                 y = randint(1,14)
-                app.enx,app.eny = wholeBoardTranslator(x,y)
-                if y != 1 or y != 14:
-                    randMoveType = 0
+
+                if (y == 1 or y == 2 or y == 13 or y == 14):
+                    r = randint(0,1)
+                    randMoveType = 1 if r == 1 else 2
+                elif (x == 1 or x == 2 or x == 13 or x == 14):
+                    r = randint(0,1)
+                    randMoveType = 0 if r == 1 else 2
                 else:
-                    randMoveType = randint(0,2)
+                    randMoveType = 0
+                app.enx,app.eny = wholeBoardTranslator(x,y)
                 app.enemies.append(Enemy((app.enx),(app.eny), 0,0,app.movementTypes[randMoveType]))
         if app.balls != []:
             isTouching(app,app.balls)
             checkBallWallCollision(app, app.balls)
             updateBallPosition(app, app.balls)
             hitEnemy(app,app.balls,app.enemies)
-            if app.pressTimer == 5:
+            if app.pressTimer == 5 and app.bullets > 0:
                 ballX,ballY = app.player.endOfBarrel()
                 app.balls.append(Ball(ballX,ballY,0,app.player.body_direction,((app.pressTimer + 1) / 3)*(app.player.tankAddX), ((app.pressTimer + 1) / 3) * app.player.tankAddY))
                 app.bullets -= 1
@@ -125,7 +126,6 @@ def onStep(app):
             enemyShoot(app,app.enemies)
         if app.mousePressed == True and app.balls != []:
             app.pressTimer += 1
-
 
 def updateBallPosition(app,balls):
     if app.gameState == 'game':
@@ -151,16 +151,14 @@ def checkBallWallCollision(app,balls):
                     ball.plusY = ball.plusY * (-1)
             hitBarriers(app,ball)
             
-               
     
 def store(app):
-    drawLabel('Store Bois', app.width/2, 100, size = 16)
+    drawLabel('Store', app.width/2, 100, size = 16, bold = True)
     drawRect(app.width/2, 300, 150,50,align= 'center', fill = 'green')
-    drawLabel('Buy ammo', app.width/2, 300, size = 16)
+    drawLabel('Buy ammo ($3 - 5 Bullets)', app.width/2, 300, size = 13)
     drawRect(app.width/2, 375, 150,50,align= 'center', fill = 'blue')
-    drawLabel('Buy Lives', app.width/2, 375, size = 16)
+    drawLabel('Buy Lives ($5 - 1 Life)', app.width/2, 375, size = 13)
     
-
     importantData(app)
 
 def onKeyPress(app,key):
@@ -187,21 +185,11 @@ def onKeyHold(app,keys):
         angle = app.player.body_direction
         radians = math.radians(angle)
         if 'w' in keys:
-            # potentialX = app.player.x + (20 * math.cos(radians))
-            # potentialY = app.player.y - (20 * math.sin(radians))
-            # if  (potentialX < 0 or potentialX > app.width or potentialY < 0 or potentialY > app.height):
-            #     app.player.y -= (20 * math.cos(radians))
-            #     app.player.x += (20 * math.sin(radians))
-            #app.player.y -= (20 * math.cos(radians))
-            #app.player.x += (20 * math.sin(radians))
-
 
             potentialX = app.player.x + (50 * math.sin(radians))
             potentialY = app.player.y - (50 * math.cos(radians))
             row,col = XYtoRowCol(potentialX,potentialY)
-            print()
             if app.board[row][col] == 0:    
-            # if not (potentialX < 0 or potentialX > app.width or potentialY < 0 or potentialY > app.height):
                 app.player.y -= (20 * math.cos(radians))
                 app.player.x += (20 * math.sin(radians))
 
@@ -210,7 +198,6 @@ def onKeyHold(app,keys):
             potentialY = app.player.y + (50 * math.sin(radians))
             row,col = XYtoRowCol(potentialX,potentialY)
             if app.board[row][col] == 0:
-            #if not (potentialX < 0 or potentialX > app.width or potentialY < 0 or potentialY > app.height):
                 app.player.y += (20 * math.cos(radians))
                 app.player.x -= (20 * math.sin(radians))
         if 'd' in keys:
@@ -231,7 +218,6 @@ def drawEnemies(app,enemies):
     for enemy in enemies:
         enemy.drawEnemy(app.player.x, app.player.y)
         enemy.body_direction += 0.5
-        #enemy.rotate(app.player.body_direction)
         enemy.move()
         if (enemy.x < 0 or enemy.x > app.width or enemy.y < 0 or enemy.y > app.height):
             app.enemies.remove(enemy)
@@ -243,6 +229,13 @@ def redrawAll(app):
     if app.gameState == 'home':
         drawLabel('Welcome To Tanks', app.width/2,100,size = 20)
         drawLabel('Click Anywhere to Start', app.width/2,125,size = 20)
+        drawLabel('Controls', app.width/2, 200, bold = True, size = 20)
+        drawLabel('W: move forward', app.width/2,225,size = 15)
+        drawLabel('S: move backwards', app.width/2, 250, size = 15)
+        drawLabel('A: turn counter-clockwise', app.width/2, 275, size = 15)
+        drawLabel('D: turn clockwise', app.width/2, 300, size = 15)
+        drawLabel('Q: pause/check out the store', app.width/2, 325, size = 15)
+        drawLabel('Mouse Click/Hold: shoot bullet(longer holds lead to faster bullet speeds)', app.width/2, 350, size = 15)
 
     elif app.gameState == 'game':
         importantData(app)
@@ -256,6 +249,9 @@ def redrawAll(app):
         
     elif app.gameState == 'store':
         store(app)
+    elif app.gameState == 'over':
+        gameOver(app)
+
 
 def isTouching(app,balls):
     for ball in balls:
@@ -264,8 +260,7 @@ def isTouching(app,balls):
             app.player.x, app.player.y = translator(0.5,12.5)
             app.lives -= 1
             if app.lives == 0:
-                app.gameState = 'home'
-                #reset(app)
+                app.gameState = 'over'
 
 def hitEnemy(app,balls,enemies):
     for ball in balls:
@@ -275,6 +270,7 @@ def hitEnemy(app,balls,enemies):
                 if ball in balls:
                     balls.remove(ball)
                 app.money += 1
+                app.kills += 1
 
 def makeBarriers(app,list):
     for x,y in list:
@@ -296,13 +292,13 @@ def hitBarriers(app, ball):
                 else:
                     ball.plusY = ball.plusY * (-1)
 
+def gameOver(app):
+    drawLabel('Game Over!!', app.width/2,100,size = 20, bold = True)
+    drawLabel(f'You lasted {app.wave} waves and destroyed {app.kills} enemy tank(s)', app.width/2,125,size = 20)
+    drawLabel('Click Anywhere to Start Again', app.width/2,150,size = 20)
+
 def main():
     runApp()
 
 if __name__ == '__main__':
     main()
-
-
-#on mouse press and on mouse release have a timer that increases speed good check
-#move back and forth or up and donw checked off, also up down left right is also cool
-#make some end game screens andn some poinrt system to show the user when they die

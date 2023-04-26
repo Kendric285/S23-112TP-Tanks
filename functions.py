@@ -1,5 +1,5 @@
 from cmu_graphics import *
-import decimal,math
+import math
 
 def distance(x1, y1, x2, y2):
     x = x2 - x1 
@@ -34,4 +34,3 @@ def isClicked(centerx,centery,mousex,mousey,height,width):
     if (mousex > xmin and mousex < xmax) and (mousey > ymin and mousey < ymax):
         return True
     return False
-#def destination(board, playerx,playery,)

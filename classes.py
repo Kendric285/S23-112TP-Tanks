@@ -1,11 +1,6 @@
 from cmu_graphics import *
 import math, copy, decimal
 from functions import *
-#4 hours on 4/10
-#3 hours on 4/11
-#6 hours on 4/12
-#5 hours on 4/16
-#3 hours on 4/17
 
 class GameBoard:
     def __init__(self,board):
@@ -60,9 +55,7 @@ class Player:
         frontY2 = (self.y + (50/2) * math.sin(theta))
 
         self.tankAddX, self.tankAddY = lcoor(self.x, self.y, self.mouseX, self.mouseY)
-        # tankX = getLineCoorX(self.x,self.y,self.mouseX,self.mouseY)
-        # tankY = getLineCoorY(self.x,self.y,self.mouseX,self.mouseY)
-        #wheels, top square, 
+     
         drawRect(self.x,self.y,55,35,rotateAngle = self.body_direction,fill = "grey", align = "center")
         self.base = drawRect(self.x,self.y,40,40,rotateAngle = self.body_direction,fill = "black", align = "center")
         drawLine(frontX1,frontY1,frontX2,frontY2,fill = 'red', lineWidth = 5)
@@ -107,10 +100,6 @@ class Enemy:
                 if self.x >= 682:
                     self.moving = 'left'
 
-        # angle = self.body_direction
-        # radians = math.radians(angle)
-        # self.x += (5 * math.sin(radians))
-        # self.y -= (5 * math.cos(radians))
     def drawEnemy(self,playerX,playerY):
         theta = math.radians(self.body_direction - 45)
         self.bullet_direction = theta
@@ -121,13 +110,10 @@ class Enemy:
         self.body_direction = self.bullet_direction
         self.tankAddX, self.tankAddY = lcoor(self.x, self.y, playerX, playerY)
 
-        # tankX = getLineCoorX(self.x,self.y,self.mouseX,self.mouseY)
-        # tankY = getLineCoorY(self.x,self.y,self.mouseX,self.mouseY)
-        #wheels, top square, 
         drawRect(self.x,self.y,65,45,rotateAngle = self.body_direction,fill = "grey", align = "center")
         self.base = drawRect(self.x,self.y,50,50,rotateAngle = self.body_direction,fill = "blue", align = "center")
         drawLine(frontX1,frontY1,frontX2,frontY2,fill = 'orange', lineWidth = 5)
-        drawLine(self.x,self.y,self.x + self.tankAddX, self.y + self.tankAddY, fill = 'black', lineWidth = 10)
+        drawLine(self.x,self.y,self.x + self.tankAddX, self.y + self.tankAddY, fill = 'orange', lineWidth = 10)
         drawCircle(self.x,self.y,10, fill = 'yellow',align= "center")
     def endOfBarrel(self):
         tankX = self.x + self.tankAddX
